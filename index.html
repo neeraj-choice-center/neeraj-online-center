@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neeraj Choice & Online Center | राष्ट्रीय ई-सेवा पोर्टल</title>
+    <!-- प्रोफेशनल डिजिटल आइकॉन्स (FontAwesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gov-dark: #0a192f;
+            --gov-blue: #172a45;
+            --neon-blue: #30bae7;
+            --neon-green: #00ff87;
+            --gold: #ffcc00;
+            --card-bg: #112240;
+            --text-light: #f8fafc;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; scroll-behavior: smooth; }
+        body { background: #0f172a; color: #cbd5e1; min-height: 100vh; overflow-x: hidden; }
+
+        /* 🎬 एनिमेटेड वेलकम स्प्लैश स्क्रीन */
+        #splashScreen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #172a45 0%, #0f172a 100%);
+            z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: all 0.6s cubic-bezier(0.645, 0.045, 0.355, 1);
+        }
+        .splash-logo { font-size: 70px; color: var(--neon-blue); margin-bottom: 20px; animation: float 3s ease-in-out infinite; }
+        .splash-title { font-size: 34px; font-weight: 800; color: white; text-align: center; text-shadow: 0 0 20px rgba(48,186,231,0.3); }
+        .splash-sub { color: #94a3b8; font-size: 16px; margin: 10px 0 40px 0; text-align: center; }
+        .lang-btn {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; border: none;
+            padding: 16px 40px; border-radius: 50px; font-size: 16px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); transition: 0.3s;
+        }
+        .lang-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px var(--neon-blue); }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+
+        /* 💻 मुख्य पोर्टल फ्रेमवर्क */
+        #mainPortal { display: none; opacity: 0; transition: opacity 0.4s ease-in; }
+
+        /* यूटिलिटी टॉप बार */
+        .gov-top-bar { background-color: var(--gov-dark); color: #94a3b8; padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; font-size: 13px; border-bottom: 1px solid #1e293b; }
+        .lang-switcher { background: none; border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 5px 14px; border-radius: 20px; cursor: pointer; font-weight: 600; }
+
+        /* भव्य मुख्य हेडर */
+        .main-header { background: var(--gov-blue); padding: 22px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--neon-blue); }
+        .brand-logo { display: flex; align-items: center; gap: 15px; }
+        .brand-logo i { font-size: 42px; color: var(--neon-blue); text-shadow: 0 0 15px var(--neon-blue); }
+        .brand-title h1 { font-size: 26px; color: white; font-weight: 800; }
+        .brand-title p { font-size: 12px; color: var(--neon-blue); text-transform: uppercase; font-weight: 600; margin-top: 3px; }
+        .admin-status-tag { background: var(--neon-green); color: #0f172a; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: none; margin-left: 15px; }
+
+        /* 🧭 स्टिकी मेनू बार */
+        .nav-menu { background: #0f172a; padding: 0 5%; display: flex; list-style: none; position: sticky; top: 0; z-index: 999; border-bottom: 1px solid #1e293b; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .nav-menu li a { display: block; padding: 18px 20px; color: #cbd5e1; text-decoration: none; font-size: 14px; font-weight: 600; transition: 0.2s; }
+        .nav-menu li a:hover { color: var(--neon-blue); background: rgba(255,255,255,0.02); }
+
+        /* 🎉 भव्य एनिमेटेड हीरो बैनर */
+        .welcome-hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            margin: 30px 5%; padding: 55px; border-radius: 24px; position: relative; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .welcome-hero h2 { font-size: 36px; font-weight: 800; color: white; margin-bottom: 12px; }
+        .welcome-hero p { font-size: 16px; color: #93c5fd; max-width: 850px; line-height: 1.7; }
+
+        /* 📢 लाइव रनिंग नोटिस पट्टी */
+        .notice-bar { background: #112240; margin: 0 5% 30px 5%; padding: 14px 25px; border-radius: 14px; display: flex; align-items: center; border: 1px solid rgba(255,255,255,0.05); }
+        .notice-tag { background: #ef4444; color: white; padding: 4px 14px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-right: 20px; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+
+        /* 🔒 हिडन एडमिन पैनल (कीबोर्ड पर 'A' दबाएं) */
+        .edit-panel { display: none; background: #1e293b; margin: 20px 5%; padding: 30px; border-radius: 16px; border: 2px dashed var(--neon-blue); }
+        .edit-panel input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #334155; border-radius: 8px; background: #0f172a; color: white; }
+        .save-btn { background: var(--neon-green); color: #0f172a; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+        /* ================= 🎴 सर्विसेस ग्रिड लेआउट ================= */
+        .section-wrapper { padding: 25px 5%; }
+        .section-title { font-size: 24px; color: white; font-weight: 800; margin-bottom: 30px; display: flex; align-items: center; gap: 12px; border-bottom: 2px solid #1e293b; padding-bottom: 12px; }
+        .section-title i { color: var(--neon-blue); font-size: 22px; }
+        .portal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
+        
+        .portal-card {
+            background: var(--card-bg); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.03);
+            display: flex; flex-direction: column; justify-content: space-between;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative;
+        }
+        .portal-card:hover {
+            transform: translateY(-8px); box-shadow: 0 20px 40px rgba(48, 186, 231, 0.15);
+            border-color: var(--neon-blue); background: #1e293b;
+        }
+        .card-icon { font-size: 36px; color: var(--neon-blue); margin-bottom: 20px; transition: 0.3s; }
+        .portal-card:hover .card-icon { transform: scale(1.1) rotate(5deg); color: var(--neon-green); }
+        .portal-card h3 { font-size: 18.5px; color: white; font-weight: 700; margin-bottom: 12px; }
+        .portal-card p { font-size: 14px; color: #94a3b8; line-height: 1.6; margin-bottom: 25px; }
+        .portal-btn {
+            background: rgba(255,255,255,0.02); color: var(--neon-blue); text-decoration: none; text-align: center;
+            padding: 12px; border-radius: 10px; font-weight: 600; font-size: 13.5px; border: 1px solid rgba(48,186,231,0.2); transition: 0.3s;
+        }
+        .portal-card:hover .portal-btn { background: var(--neon-blue); color: var(--gov-dark); font-weight: 700; box-shadow: 0 0 15px var(--neon-blue); }
+
+        /* 🟢 फ्लोटिंग व्हाट्सएप सपोर्ट */
+        .whatsapp-float { position: fixed; bottom: 30px; right: 40px; background: #25d366; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 10px 25px rgba(37, 211, 102, 0.4); text-decoration: none; z-index: 999; transition: 0.3s; }
+        .whatsapp-float:hover { transform: scale(1.1) rotate(5deg); }
+
+        /* 🏢 ---------------- सरकारी स्टाइल मेगा फुटर डिज़ाइन ---------------- */
+        .gov-mega-footer {
+            background-color: #110b06; color: #a4b0be; padding: 50px 5% 20px 5%; font-size: 14px; border-top: 3px solid #ff9933; margin-top: 60px;
+        }
+        .footer-top-title { text-align: center; margin-bottom: 40px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 20px; }
+        .footer-top-title h2 { color: white; font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+        .footer-top-title p { color: #ff9933; font-size: 14px; margin-top: 5px; font-weight: 600; }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 30px; margin-bottom: 40px; }
+        .footer-col h3 { color: white; font-size: 15px; font-weight: 700; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .footer-col ul { list-style: none; padding: 0; margin: 0; }
+        .footer-col ul li { margin-bottom: 12px; }
+        .footer-col ul li a { color: #cbd5e1; text-decoration: none; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+        .footer-col ul li a:hover { color: #ff9933; transform: translateX(4px); }
+
+        /* 📄 ड्रॉपडाउन बॉक्स डिज़ाइन (Introduction & Contact Us) */
+        .footer-dropdown-info {
+            display: none; background: rgba(255, 255, 255, 0.05); padding: 14px; border-radius: 8px; margin-top: 8px; border-left: 3px solid #ff9933; animation: slideDown 0.3s ease-out;
+        }
+        .footer-dropdown-info p { font-size: 13px !important; color: #cbd5e1 !important; margin-bottom: 6px !important; text-align: left !important; line-height: 1.5 !important; }
+        .footer-dropdown-info p strong { color: #ff9933; }
+        
+        .arrow-icon { transition: transform 0.3s ease; }
+        .arrow-rotate { transform: rotate(90deg); color: #ff9933; }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .footer-contact-row { display: flex; justify-content: center; gap: 80px; padding: 25px 0; border-top: 1px solid rgba(255, 255, 255, 0.1); border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 30px; }
+        .footer-contact-row i { font-size: 22px; color: #cbd5e1; cursor: pointer; transition: 0.3s; }
+        .footer-contact-row i:hover { color: #ff9933; transform: scale(1.2); }
+
+        .footer-middle-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin-bottom: 30px; }
+        .footer-copy h4 { color: white; font-size: 14px; margin-bottom: 5px; }
+        .footer-copy p { font-size: 12px; color: #94a3b8; }
+        .footer-social { display: flex; align-items: center; gap: 15px; }
+        .footer-social a { color: white; font-size: 16px; transition: 0.2s; }
+        .footer-social a:hover { color: #ff9933; }
+
+        .footer-counter { background: rgba(255,255,255,0.03); padding: 10px 20px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); text-align: right; font-size: 13px; }
+        .footer-counter span { color: white; font-weight: 700; }
+
+        .gov-disclaimer-box { display: flex; background-color: #1e293b; border-radius: 6px; overflow: hidden; margin-bottom: 25px; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .disclaimer-badge { background-color: #d97706; color: white; padding: 20px; font-weight: 700; display: flex; align-items: center; justify-content: center; min-width: 140px; text-align: center; font-size: 13px; }
+        .disclaimer-text { padding: 20px; color: #cbd5e1; font-size: 13px; line-height: 1.6; }
+        .footer-bottom-text { text-align: center; font-size: 12px; color: #64748b; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 15px; }
+
+        @media (max-width: 992px) {
+            .nav-menu { display: none; }
+            .footer-contact-row { gap: 40px; }
+            .footer-middle-row { flex-direction: column; text-align: center; }
+            .footer-counter { text-align: center; }
+            .gov-disclaimer-box { flex-direction: column; }
+            .disclaimer-badge { padding: 12px; }
+        }
+        /* 🔥 बैनर के लिए तगड़ा एनिमेटेड बैकग्राउंड */
+.welcome-banner-bg {
+    background: linear-gradient(-45deg, #0f172a, #1e3a8a, #3b82f6, #0284c7);
+    background-size: 400% 400%;
+    animation: gradientMove 12s ease infinite;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* 🌀 बैकग्राउंड को धीरे-धीरे घूमाने वाला एनीमेशन लॉजिक */
+@keyframes gradientMove {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+    </style>
+</head>
+<body>
+
+    <!-- 🎬 1. वेलकम लैंग्वेज एंट्रेंस स्क्रीन -->
+    <div id="splashScreen">
+        <div class="splash-logo"><i class="fa-solid fa-circle-nodes"></i></div>
+        <div class="splash-title">NEERAJ CHOICE & ONLINE CENTER</div>
+        <div class="splash-sub">National E-Services Gateway | डिजिटल सेवा केंद्र</div>
+        <div class="lang-btn-container">
+            <button class="lang-btn" onclick="enterPortal('hi')">हिंदी डैशबोर्ड खोलें</button>
+            <button class="lang-btn" style="background: #112240; border: 2px solid var(--neon-blue);" onclick="enterPortal('en')">English Dashboard</button>
+        </div>
+    </div>
+
+    <!-- 💻 2. मुख्य महा-पोर्टल फ्रेमवर्क -->
+    <div id="mainPortal">
+        
+        <!-- यूटिलिटी बार -->
+        <div class="gov-top-bar">
+            <div><i class="fa-solid fa-globe"></i> CSC E-Governance Services India | Common Service Centre Gateway</div>
+            <button class="lang-switcher" onclick="switchLanguage()" id="langToggleBtn">Switch to English</button>
+        </div>
+
+        <!-- मुख्य हेडर -->
+        <header class="main-header">
+            <div class="brand-logo">
+                <i class="fa-solid fa-building-shield"></i>
+                <div class="brand-title">
+                    <h1 id="headerTitle">नीरज चॉइस एंड ऑनलाइन सेंटर</h1>
+                    <p id="headerSub">समस्त शासकीय, बैंकिंग एवं नागरिक डिजिटल सेवाएं <span class="admin-status-tag" id="adminTag">ADMIN ACTIVE 🟢</span></p>
+                </div>
+            </div>
+        </header>
+
+        <!-- 🧭 स्टिकी मेनू बार -->
+        <ul class="nav-menu">
+            <li><a href="#" id="menuHome">मुख्य पृष्ठ (Home)</a></li>
+            <li><a href="#cg-section" id="menuCg">छत्तीसगढ़ चॉइस सेवाएं</a></li>
+            <li><a href="#central-section" id="menuCentral">केंद्र सरकार व बैंकिंग</a></li>
+            <li><a href="#edu-section" id="menuEdu">शिक्षा व स्कॉलरशिप</a></li>
+            <li><a href="#travel-section" id="menuTravel">यात्रा व यूटिलिटी</a></li>
+        </ul>
+
+        <!-- 🎉 भव्य वेलकम हीरो बैनर -->
+       <!-- 🎉 भव्य वेलकम हीरो बैनर -->
+<div class="welcome-hero welcome-banner-bg">
+    <h2 id="heroWelcome">Welcome to Our Services!</h2>
+    <p id="heroDesc">राष्ट्रीय ई-सेवा गेटवे में आपका स्वागत है। केंद्र सरकार, राज्य सरकार एवं विभिन्न बैंकिंग पोर्टल्स की डिजिटल सेवाओं को नागरिकों तक सुलभता से पहुँचाने के लिए यह पोर्टल डिजाइन है।</p>
+</div>
+
+        <!-- 📢 लाइव रनिंग नोटिस पट्टी -->
+        <div class="notice-bar">
+            <div class="notice-tag" id="noticeTag">सूचना</div>
+            <marquee scrollamount="4" id="liveNotice">⚠️ छत्तीसगढ़ व्यापम भर्ती फॉर्म, कॉलेज परीक्षा फॉर्म, पोस्ट-मैट्रिक स्कॉलरशिप एवं नवीन राशन कार्ड पंजीयन केंद्र पर लाइव चालू हैं।</marquee>
+        </div>
+
+        <!-- 🔒 हिडन एडमिन पैनल (कीबोर्ड पर 'A' दबाएं) -->
+        <div class="edit-panel" id="adminPanelBox">
+            <h3>🔐 Live Admin Control Dashboard</h3>
+            <input type="text" id="editWelcomeText" placeholder="Edit Welcome Heading...">
+            <input type="text" id="editDescText" placeholder="Edit Description Text...">
+            <input type="text" id="editNoticeText" placeholder="Edit Scrolling Notice...">
+            <button class="save-btn" onclick="saveAdminData()">Save & Push Live</button>
+        </div>
+
+        <!-- ================= 🌴 SECTION 1: CHHATTISGARH SERVICES ================= -->
+        <div class="section-wrapper" id="cg-section">
+            <div class="section-title"><i class="fa-solid fa-map-location-dot"></i> <span id="secTitleCg">छत्तीसगढ़ राज्य चॉइस सेवाएं (Choice G2C)</span></div>
+            <div class="portal-grid">
+                <div class="portal-card">
+                    <div>
+                        <div class="card-icon"><i class="fa-solid fa-file-signature"></i></div>
+                        <h3 id="t1">आय / जाति / निवास प्रमाण पत्र</h3>
+                        <p id="d1">छत्तीसगढ़ ई-डिस्ट्रिक्ट पोर्टल के अंतर्गत प्रमाणित कानूनी डिजिटल सर्टिफिकेट्स का निर्माण एवं सुधार ट्रैकिंग।</p>
+                    </div>
+                    <a href="https://edistrict.cgstate.gov.in/" target="_blank" class="portal-btn" id="b1">यहाँ से लिंक खोलें</a>
+                </div>
+                <div class="portal-card">
+                    <div>
+                        <div class="card-icon"><i class="fa-solid fa-scroll"></i></div>
+                        <h3 id="t2">भुइँया भू-अभिलेख (Bhuiyan)</h3>
+                        <p id="d2">अपनी कृषि भूमि या आवासीय भूखंड का डिजिटल रिकॉर्ड, खसरा विवरण (B1), पी-II, और भू-नक्शा प्रिंट आउट।</p>
+                    </div>
+                    <a href="https://bhuiyan.cg.nic.in/" target="_blank" class="portal-btn" id="b2">यहाँ से लिंक खोलें</a>
+                </div>
+                <div class="portal-card">
+                    <div>
+                        <div class="card-icon"><i class="fa-solid fa-id-badge"></i></div>
+                        <h3 id="t3">नवीन राशन कार्ड / नवीनीकरण</h3>
+                        <p id="d3">खाद्य नागरिक आपूर्ति विभाग छत्तीसगढ़ के तहत नए राशन कार्ड आवेदन, समर्पण पत्र या नाम सुधार कार्य।</p>
+                    </div>
+                    <a href="https://khadya.cg.nic.in/" target="_blank" class="portal-btn" id="b3">यहाँ से लिंक खोलें</a>
+                </div>
+                <div class="portal-card">
+                    <div>
+                        <div class="card-icon"><i class="fa-solid fa-lightbulb"></i></div>
+                        <h3 id="t4">CSPDCL बिजली बिल भुगतान</h3>
+                        <p id="d4">छत्तीसगढ़ बिजली बिल ऑनलाइन देखना, सुरक्षित डिजिटल भुगतान एवं हाफ बिजली बिल योजना छूट रसीद प्रिंट।</p>
+                    </div>
+                    <a href="https://www.cspdcl.co.in/" target="_blank" class="portal-btn" id="b4">यहाँ से लिंक खोलें</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= 🏛️ SECTION 2: CENTRAL SERVICES ================= -->
+        <div class="section-wrapper" id="central-section">
+            <div class="section-title"><i class="fa-solid fa-landmark"></i> <span id="secTitleCentral">केंद्र सरकार योजनाएं एवं डिजिटल बैंकिंग</span></div>
+            <div class="portal-grid">
+                <div class="portal-card">
+                    <div>
+                        <div class="card-icon"><i class="fa-solid fa-fingerprint"></i></div>
+                        <h3 id="t5">माय आधार पोर्टल (UIDAI)</h3>
+                        <p id="d5">आधार कार्ड ऑनलाइन डाउनलोड, नया पीवीसी प्लास्टिक कार्ड ऑर्डर, बायोमेट्रिक लॉक एवं एड्रेस अपडेट।</p>
+                    </div>
+                    <a href="https://myaadhaar.uidai.gov.in/" target="_blank" class="portal-btn" id="b5">यहाँ से लिंक खोलें</a>
+                </div>
+                <div class="portal-card">
+                    <div>
+                        <div class="card-icon"><i class="fa-solid fa-address-card"></i></div>
+                        <h3 id="t6">नया पैन कार्ड ऑनलाइन (NSDL)</h3>
+                        <p id="d6">बायोमेट्रिक फिंगरप्रिंट अथवा ओटीपी ई-केवाईसी (e-KYC) के माध्यम से सिर्फ 2 घंटे में नया पैन कार्ड आवंटन।</p>
+                    </div>
+                    <a href="https://onlineservices.proteantech.in/paam/endUserRegisterContact.html" target="_blank" class="portal-btn" id="b6">यहाँ से लिंक खोलें</a>
+                </div>
+                <div class="portal-card">
+                    <div>
+                        <div class="card-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+                        <h3 id="t7">आयुष्मान भारत हेल्थ कार्ड</h3>
+                        <p id="d7">सालाना ₹5 लाख मुफ्त इलाज हेतु नया आयुष्मान कार्ड निर्माण एवं खोए हुए कार्ड की दोबारा डाउनलोडिंग।</p>
+                    </div>
+                    <a href="https://beneficiary.nha.gov.in/" target="_blank" class="portal-btn" id="b7">यहाँ से लिंक खोलें</a>
+                </div>
+                <div class="portal-card">
+                    <div>
+                        <div class="card-icon"><i class="fa-solid fa-wheat-awn"></i></div>
+                        <h3 id="t8">पीएम किसान सम्मान निधि</h3>
+                        <p id="d8">नवीन कृषक पंजीयन, सालाना ₹6000 हेतु ई-केवाईसी स्टेटस जांच एवं आगामी किश्तों के भुगतान की स्थिति।</p>
+                    </div>
+                    <a href="https://pmkisan.gov.in/" target="_blank" class="portal-btn" id="b8">यहाँ से लिंक खोलें</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= 🎓 SECTION 3: EDUCATION ================= -->
+        <div class="section-wrapper" id="edu-section">
+            <div class="section-title"><i class="fa-solid fa-graduation-cap"></i> <span id="secTitleEdu">शिक्षा, बोर्ड फॉर्म एवं छात्रवृत्ति (Education Hub)</span></div>
+            <div class="portal-grid">
+                <div class="portal-card">
+                    <div>
+                        <div class="card-icon"><i class="fa-solid fa-school"></i></div>
+                        <h3 id="t9">छत्तीसगढ़ पोस्ट-मैट्रिक छात्रवृत्ति</h3>
+                        <p id="d9">स्कूल, कॉलेज, आईटीआई (ITI) एवं डिप्लोमा इंजीनियरिंग छात्रों हेतु ऑनलाइन स्कॉलरशिप पंजीयन एवं ट्रैकिंग।</p>
+                    </div>
+                    <a href="https://postmatric-scholarship.cg.nic.in/" target="_blank" class="portal-btn" id="b9">यहाँ से लिंक खोलें</a>
+                </div>
+                <div class="portal-card">
+                    <div>
+                        <div class="card-icon"><i class="fa-solid fa-users-gear"></i></div>
+                        <h3 id="t10">छत्तीसगढ़ व्यापम (CG VYAPAM)</h3>
+                        <p id="d10">व्यापम द्वारा आयोजित विभिन्न सरकारी प्रतियोगी परीक्षाओं के ऑनलाइन प्रवेश फॉर्म एवं प्रोफाइल निर्माण।</p>
+                    </div>
+                    <a href="https://vyapam.cgstate.gov.in/" target="_blank" class="portal-btn" id="b10">यहाँ से लिंक खोलें</a>
+                </div>
+                <div class="portal-card">
+                    <div>
+                        <div class="card-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                        <h3 id="t11">नवीन सरकारी नौकरी व रिजल्ट</h3>
+                        <p id="d11">सभी नवीनतम केंद्रीय एवं राज्य स्तरीय सरकारी नौकरियों के ऑनलाइन आवेदन पत्र, एडमिट कार्ड और परीक्षा परिणाम।</p>
+                    </div>
+                    <a href="https://www.sarkariresult.com/" target="_blank" class="portal-btn" id="b11">यहाँ से लिंक खोलें</a>
+                </div>
+                <div class="portal-card">
+                    <div>
+                        <div class="card-icon"><i class="fa-solid fa-award"></i></div>
+                        <h3 id="t12">माध्यमिक शिक्षा मंडल (CGBSE)</h3>
+                        <p id="d12">कक्षा 10वीं एवं 12वीं के मुख्य/पूरक परीक्षा बोर्ड फॉर्म, री-टोटलिंग एवं ओरिजिनल अंकसूची माइग्रेशन कार्य।</p>
+                    </div>
+                    <a href="https://cgbse.nic.in/" target="_blank" class="portal-btn" id="b12">यहाँ से लिंक खोलें</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= ⚡ SECTION 4: TRAVEL ================= -->
+        <div class="section-wrapper" id="travel-section">
+            <div class="section-title"><i class="fa-solid fa-bolt"></i> <span id="secTitleTravel">यात्रा बुकिंग एवं नागरिक यूटिलिटी सेवाएं</span></div>
+            <div class="portal-grid">
+                <div class="portal-card">
+                    <div>
+                        <div class="card-icon"><i class="fa-solid fa-train"></i></div>
+                        <h3 id="t13">IRCTC रेलवे टिकट बुकिंग</h3>
+                        <p id="d13">देशभर की समस्त ट्रेनों के लिए ऑथराइज्ड कन्फर्म सामान्य टिकट, तत्काल टिकट बुकिंग एवं PNR स्टेटस जांच।</p>
+                    </div>
+                    <a href="https://www.irctc.co.in/" target="_blank" class="portal-btn" id="b13">यहाँ से लिंक खोलें</a>
+                </div>
+                <div class="portal-card">
+                    <div>
+                        <div class="card-icon"><i class="fa-solid fa-passport"></i></div>
+                        <h3 id="t14">पासपोर्ट सेवा केंद्र (Govt)</h3>
+                        <p id="d14">नए भारतीय पासपोर्ट हेतु ऑनलाइन फ्रेश एप्लीकेशन, री-इश्यू दस्तावेज सबमिशन एवं अपॉइंटमेंट स्लॉट बुकिंग।</p>
+                    </div>
+                    <a href="https://www.passportindia.gov.in/" target="_blank" class="portal-btn" id="b14">यहाँ से लिंक खोलें</a>
+                </div>
+                <div class="portal-card">
+                    <div>
+                        <div class="card-icon"><i class="fa-solid fa-square-poll-vertical"></i></div>
+                        <h3 id="t15">राष्ट्रीय मतदाता सेवा (NVSP)</h3>
+                        <p id="d15">नया वोटर आईडी कार्ड ऑनलाइन आवेदन, वोटर लिस्ट में नाम खोजना, तथा डिजिटल वोटर कार्ड डाउनलोड।</p>
+                    </div>
+                    <a href="https://www.nvsp.in/" target="_blank" class="portal-btn" id="b15">यहाँ से लिंक खोलें</a>
+                </div>
+                <div class="portal-card">
+                    <div>
+                        <div class="card-icon"><i class="fa-solid fa-car"></i></div>
+                        <h3 id="t16">परिवहन सारथी (Driving License)</h3>
+                        <p id="d16">लर्निंग लाइसेंस ऑनलाइन test आवेदन, परमानेंट driving license स्लॉट बुकिंग एवं गाड़ी का RC स्टेटस।</p>
+                    </div>
+                    <a href="https://sarathi.parivahan.gov.in/" target="_blank" class="portal-btn" id="b16">यहाँ से लिंक खोलें</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🏢 ---------------- सरकारी स्टाइल मेगा फुटर (इमेज लेआउट) ---------------- -->
+        <footer class="gov-mega-footer">
+            
+            <div class="footer-top-title">
+                <h2>Chhattisgarh</h2>
+                <p>Digital Services Made Easy</p>
+            </div>
+
+            <div class="footer-grid">
+                
+                <div class="footer-col">
+                    <h3>About Us</h3>
+                    <ul>
+                        <!-- 📄 क्लिक करते ही एरो घूमने और इंट्रो पेज खुलने वाली नई व्यवस्था (Verbatim: image_4a7b7c.png) -->
+                        <li>
+                            <a href="javascript:void(0);" onclick="toggleFooterDropdown('introInfo', 'introArrow')">
+                                <i class="fa-solid fa-angle-right arrow-icon" id="introArrow"></i> An Introduction
+                            </a>
+                            <div id="introInfo" class="footer-dropdown-info">
+                                <p><strong>Center Name:</strong> Neeraj Choices and Online Center [NCC]</p>
+                                <p>Our objective is to provide fast, transparent, and 100% trustworthy digital government services to all citizens of Bilaspur and Chhattisgarh.</p>
+                            </div>
+                        <!-- 🖥️ इस नए ड्रॉपडाउन कोड से बदलें -->
+<li>
+    <a href="javascript:void(0);" onclick="toggleFooterDropdown('structureInfo', 'structureArrow')">
+        <i class="fa-solid fa-angle-right arrow-icon" id="structureArrow"></i> Our Center Structure
+    </a>
+    <div id="structureInfo" class="footer-dropdown-info">
+        <p><strong><i class="fa-solid fa-desktop" style="color: var(--neon-blue);"></i> System:</strong> High-Speed Core PC Setup</p>
+        <p><strong><i class="fa-solid fa-print" style="color: var(--neon-green);"></i> Printer:</strong> Thermal, PVC, and Heavy-Duty Laser Printers</p>
+        <p><strong><i class="fa-solid fa-wifi" style="color: var(--gold);"></i> Network:</strong> 5G High-Speed Fiber Broadband Connectivity</p>
+        <p><strong><i class="fa-solid fa-bolt" style="color: #ef4444;"></i> Backup:</strong> 24×7 Inverter Power Backup Available</p>
+    </div>
+</li>
+                        <!-- 🏢 इस नए ड्रॉपडाउन कोड से बदलें -->
+<li>
+    <a href="javascript:void(0);" onclick="toggleFooterDropdown('deptInfo', 'deptArrow')">
+        <i class="fa-solid fa-angle-right arrow-icon" id="deptArrow"></i> Service Departments
+    </a>
+    <div id="deptInfo" class="footer-dropdown-info">
+        <p><strong><i class="fa-solid fa-gavel" style="color: var(--neon-blue);"></i> Revenue Department:</strong> Income, Caste, Residence and Land Services.</p>
+        <p><strong><i class="fa-solid fa-utensils" style="color: var(--neon-green);"></i> Food Department:</strong> New Ration Card, Name Addition and Modification.</p>
+        <p><strong><i class="fa-solid fa-user-graduate" style="color: var(--gold);"></i> Education and Employment:</strong> Scholarships, Boards and Recruitment Forms.</p>
+        <p><strong><i class="fa-solid fa-id-card" style="color: #ef4444;"></i> Utility Department:</strong> Aadhaar, PAN, Electricity Bill and Ticket Booking.</p>
+    </div>
+</li>
+                        <!-- 📞 कांटेक्ट ड्रॉपडाउन बटन -->
+                        <li>
+                            <a href="javascript:void(0);" onclick="toggleFooterDropdown('contactInfo', 'contactArrow')">
+                                <i class="fa-solid fa-angle-right arrow-icon" id="contactArrow"></i> Contact Us
+                            </a>
+                            <div id="contactInfo" class="footer-dropdown-info">
+                                <p><strong>Phone:</strong> +91 97705 66219</p>
+                                <p><strong>Email:</strong> ncc2848@gmail.com</p>
+                                <p><strong>Director:</strong> Neeraj Kumar</p>
+                                <p><strong>Location:</strong> Binaika, Simga, Chhattisgarh [493101]</p>
+                                <p><strong>Working Hours:</strong> 9:00 AM to 7:00 PM</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h3>Services</h3>
+                    <ul>
+                        <!-- 🌴 इस नए ड्रॉपडाउन कोड से बदलें -->
+<li>
+    <a href="javascript:void(0);" onclick="toggleFooterDropdown('g2cInfo', 'g2cArrow')">
+        <i class="fa-solid fa-angle-right arrow-icon" id="g2cArrow"></i> Choice Centre G2C
+    </a>
+    <div id="g2cInfo" class="footer-dropdown-info">
+        <p><strong><i class="fa-solid fa-certificate" style="color: var(--neon-blue);"></i> Government Certificates:</strong> Instant application for Digital Income, Caste and Residence Certificates.</p>
+        <p><strong><i class="fa-solid fa-file-pdf" style="color: var(--neon-green);"></i> Land Records Services:</strong> Khasra B1 and Digital Map Copy from Chhattisgarh Land Portal.</p>
+        <p><strong><i class="fa-solid fa-address-book" style="color: var(--gold);"></i> Citizen Card:</strong> New Ration Card Registration, Name Addition/Modification and E-Employment Services.</p>
+    </div>
+</li>
+                        <li><a href="https://wa.me/919770566219?text=Hello%20Neeraj%20brother%2C%20I%20want%20to%20get%20some%20online%20work%20done%20from%20Neeraj%20Choice%20%26%20Online%20Center." target="_blank"><i class="fa-solid fa-angle-right"></i> Mode of Contact</a></li>
+                        <!-- 🏦 Digital Banking ड्रॉपडाउन कोड -->
+<li>
+    <a href="javascript:void(0);" onclick="toggleFooterDropdown('bankingInfo', 'bankingArrow')">
+        <i class="fa-solid fa-angle-right arrow-icon" id="bankingArrow"></i> Digital Banking
+    </a>
+    <div id="bankingInfo" class="footer-dropdown-info">
+        <p><strong><i class="fa-solid fa-money-bill-transfer" style="color: var(--neon-blue);"></i> AEPS Cash Withdrawal:</strong> Cash withdrawal and balance enquiry using Aadhaar biometric authentication.</p>
+        <p><strong><i class="fa-solid fa-building-columns" style="color: var(--neon-green);"></i> Money Transfer:</strong> Instant and secure domestic money transfer (DMT) to any bank account across India.</p>
+        <p><strong><i class="fa-solid fa-piggy-bank" style="color: var(--gold);"></i> Micro ATM Services:</strong> Quick cash withdrawal using all major Debit and Credit cards at our center.</p>
+    </div>
+</li>
+                        <!-- 📜 Scheme Enrollment ड्रॉपडाउन कोड -->
+<li>
+    <a href="javascript:void(0);" onclick="toggleFooterDropdown('schemeInfo', 'schemeArrow')">
+        <i class="fa-solid fa-angle-right arrow-icon" id="schemeArrow"></i> Scheme Enrollment
+    </a>
+    <div id="schemeInfo" class="footer-dropdown-info">
+        <p><strong><i class="fa-solid fa-wheat-awn" style="color: var(--neon-blue);"></i> PM-Kisan Samman:</strong> New farmer registration, mandatory e-KYC updates, and installment ledger checks.</p>
+        <p><strong><i class="fa-solid fa-heart-pulse" style="color: var(--neon-green);"></i> Ayushman Bharat:</strong> Instant creation and reprint of cashless digital health cards for ₹5 Lakh free medical cover.</p>
+        <p><strong><i class="fa-solid fa-id-card-clip" style="color: var(--gold);"></i> Shramik Portal:</strong> Seamless online registration for E-Shram and labor welfare cards for institutional benefits.</p>
+    </div>
+</li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h3>Help & Support</h3>
+                    <ul>
+                        <li>
+    <!-- 1. बटन जिस पर ग्राहक क्लिक करेगा -->
+    <a href="javascript:void(0);" onclick="toggleFooterDropdown('faqInfo', 'faqArrow')">
+        <i class="fa-solid fa-angle-right arrow-icon" id="faqArrow"></i> FAQs
+    </a>
+    
+    <!-- 2. ड्रॉपडाउन बॉक्स (शुरुआत में छुपा रहेगा, क्लिक करते ही खुलेगा) -->
+    <div id="faqInfo" class="footer-dropdown-info">
+        <p><strong>Q. What are the center timings?</strong><br>We are open daily from 09:00 AM to 07:00 PM.</p>
+        <p><strong>Q. Do I need an appointment?</strong><br>No, you can visit our center directly for any digital services.</p>
+    </div>
+</li>
+                        <li>
+    <!-- 🟢 डायरेक्ट व्हाट्सएप ऑटो-मैसेज लिंक -->
+    <a href="https://wa.me/919770566219?text=Hello%20Neeraj%20brother%2C%20I%20need%20some%20urgent%20help%20regarding%20an%20online%20application." target="_blank">
+        <i class="fa-solid fa-angle-right"></i> Happy to Help
+    </a>
+</li>
+                        <li>
+    <!-- 1. बटन जिस पर ग्राहक क्लिक करेगा -->
+    <a href="javascript:void(0);" onclick="toggleFooterDropdown('techInfo', 'techArrow')">
+        <i class="fa-solid fa-angle-right arrow-icon" id="techArrow"></i> Technical Support
+    </a>
+    
+    <!-- 2. ड्रॉपडाउन बॉक्स (क्लिक करने पर नीचे स्मूथली खुलेगा) -->
+    <div id="techInfo" class="footer-dropdown-info">
+        <p><strong><i class="fa-solid fa-circle-check" style="color: var(--neon-green);"></i> Server Status:</strong> All government portal payment gateways are currently live and stable.</p>
+        <p><strong><i class="fa-solid fa-headset" style="color: var(--neon-blue);"></i> Assistance:</strong> For any failed transactions, pending status, or receipt reprints, please visit the center desk.</p>
+    </div>
+</li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li>
+    <!-- 1. बटन जिस पर ग्राहक क्लिक करेगा -->
+    <a href="javascript:void(0);" onclick="toggleFooterDropdown('termsInfo', 'termsArrow')">
+        <i class="fa-solid fa-angle-right arrow-icon" id="termsArrow"></i> Terms and Conditions
+    </a>
+    
+    <!-- 2. ड्रॉपडाउन बॉक्स (क्लिक करने पर नीचे स्मूथली खुलेगा) -->
+    <div id="termsInfo" class="footer-dropdown-info">
+        <p><strong>Service Terms:</strong> All digital applications are processed based on official government portal guidelines and rules.</p>
+        <p><strong>Charges:</strong> Official government portal fees and standard center service charges apply to all forms.</p>
+    </div>
+</li>
+                        <li>
+    <!-- 1. बटन जिस पर ग्राहक क्लिक करेगा -->
+    <a href="javascript:void(0);" onclick="toggleFooterDropdown('privacyInfo', 'privacyArrow')">
+        <i class="fa-solid fa-angle-right arrow-icon" id="privacyArrow"></i> Privacy Policy
+    </a>
+    
+    <!-- 2. ड्रॉपडाउन बॉक्स (क्लिक करने पर नीचे स्मूथली खुलेगा) -->
+    <div id="privacyInfo" class="footer-dropdown-info">
+        <p><strong>Data Privacy:</strong> Your personal documents (Aadhaar, OTP, Certificates) are completely safe and encrypted at our center.</p>
+        <p><strong>No Leaks:</strong> No customer data is stored or shared with any third-party marketing networks.</p>
+    </div>
+</li>
+                        <li>
+    <!-- 1. बटन जिस पर ग्राहक क्लिक करेगा -->
+    <a href="javascript:void(0);" onclick="toggleFooterDropdown('cancelInfo', 'cancelArrow')">
+        <i class="fa-solid fa-angle-right arrow-icon" id="cancelArrow"></i> Cancellation Policy
+    </a>
+    
+    <!-- 2. ड्रॉपडाउन बॉक्स (क्लिक करने पर नीचे स्मूथली खुलेगा) -->
+    <div id="cancelInfo" class="footer-dropdown-info">
+        <p><strong>Form Cancellation:</strong> Once a government application is submitted and the final payment is locked on the portal, it cannot be canceled or rolled back.</p>
+        <p><strong>Refunds:</strong> Government portal fees are non-refundable under any circumstances as per official department rules.</p>
+    </div>
+</li>
+                       <li>
+    <!-- 1. बटन जिस पर ग्राहक क्लिक करेगा -->
+    <a href="javascript:void(0);" onclick="toggleFooterDropdown('sitemapInfo', 'sitemapArrow')">
+        <i class="fa-solid fa-angle-right arrow-icon" id="sitemapArrow"></i> Sitemap
+    </a>
+    
+    <!-- 2. ड्रॉपडाउन बॉक्स (क्लिक करने पर नीचे लिंक्स के साथ खुलेगा) -->
+    <div id="sitemapInfo" class="footer-dropdown-info">
+        <p><strong>Quick Navigation:</strong><br>
+           • <a href="#cg-section" style="display:inline; color:#ff9933; padding:0; font-size:13px;">CG G2C Services</a><br>
+           • <a href="#central-section" style="display:inline; color:#ff9933; padding:0; font-size:13px;">Govt & Banking</a><br>
+           • <a href="#edu-section" style="display:inline; color:#ff9933; padding:0; font-size:13px;">Education & Exams</a><br>
+           • <a href="#travel-section" style="display:inline; color:#ff9933; padding:0; font-size:13px;">Travel Utilities</a>
+        </p>
+    </div>
+</li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- कांटेक्ट आइकॉन्स रो -->
+            <!-- 📍 1. लोकेशन (Google Maps Link) -->
+<!-- 📍 1. लोकेशन (Google Maps Link) -->
+<a href="https://maps.google.com/?q=Neeraj+Choice+And+Online+Center+Baloda+Bazar" target="_blank" title="Our Location" style="font-size: 24px; margin-right: 20px; display: inline-block;">
+    <i class="fa-solid fa-location-dot" style="color: #a855f7;"></i>
+</a>
+
+<!-- 📞 2. फ़ोन कॉल (Direct Call Link) -->
+<a href="tel:+919770566219" title="Call Us" style="font-size: 24px; margin-right: 20px; display: inline-block;">
+    <i class="fa-solid fa-phone" style="color: #2563eb;"></i>
+</a>
+
+<!-- ✉️ 3. ईमेल (Direct Mail Link) -->
+<a href="mailto:your-email@gmail.com?subject=Inquiry%20from%20Website" title="Email Us" style="font-size: 24px; display: inline-block;">
+    <i class="fa-solid fa-envelope" style="color: #2563eb;"></i>
+</a>
+
+            <div class="footer-middle-row">
+                <div class="footer-copy">
+                    <h4>© 2026 Neeraj Choice Center, All Rights Reserved.</h4>
+                    <p>Content Managed by Neeraj Online Services Center, Baloda Bazar, Chhattisgarh.</p>
+                </div>
+
+                <div class="footer-social">
+                    <span>Follow Us:</span>
+                    <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-youtube"></i></a>
+                </div>
+
+              <div class="visitor-counter-box">
+    <p>Visitors: <strong id="unique-visitors">1</strong></p>
+    <p>Page visit: <strong id="total-page-visits">1</strong></p>
+</div>
+            </div>
+
+            <!-- डिस्क्लेमर बॉक्स -->
+            <div class="gov-disclaimer-box">
+                <div class="disclaimer-badge">Translation<br>Disclaimer</div>
+                <div class="disclaimer-text">
+                    All efforts have been made to make the information as accurate as possible. Neeraj Choice & Online Center, Government Of Chhattisgarh portal helper, will not be responsible for any damage caused by inaccuracy in the information available on this Website designed.
+                </div>
+            </div>
+
+            <div class="footer-bottom-text">
+                This website is designed and maintained independently for providing easy assistance to citizens regarding various online services.
+            </div>
+
+        </footer>
+
+    </div>
+
+    <!-- 🟢 फ्लोटिंग व्हाट्सएप सपोर्ट -->
+   <!-- 🟢 फ्लोटिंग व्हाट्सएप सपोर्ट (इंग्लिश ऑटो-मैसेज के साथ) -->
+<a href="https://wa.me/919770566219?text=Hello%20Neeraj%20brother%2C%20I%20visited%20your%20website%20and%20want%20to%20know%20more%20about%20your%20online%20services." class="whatsapp-float" target="_blank">
+    <i class="fa-brands fa-whatsapp"></i>
+</a>
+    </a>
+
+    <!-- 🛠️ जावास्क्रिप्ट लॉजिक इंजन -->
+    <script>
+        let currentLang = 'hi';
+        let adminModeActive = false;
+
+        const langData = {
+            hi: {
+                headerTitle: "नीरज चॉइस एंड ऑनलाइन सेंटर", headerSub: "समस्त शासकीय, banking एवं नागरिक डिजिटल सेवाएं", langToggle: "Switch to English",
+                menuHome: "मुख्य पृष्ठ", menuCg: "छत्तीसगढ़ चॉइस सेवाएं", menuCentral: "केंद्र सरकार व बैंकिंग", menuEdu: "शिक्षा व स्कॉलरशिप", menuTravel: "यात्रा व यूटिलिटी",
+                heroWelcome: "Welcome to Our Services!", heroDesc: "राष्ट्रीय ई-सेवा गेटवे में आपका स्वागत है। केंद्र सरकार, राज्य सरकार एवं विभिन्न banking पोर्टल्स की डिजिटल सेवाओं को नागरिकों तक सुलभता से पहुँचाने के लिए यह पोर्टल डिजाइन है।",
+                noticeTag: "सूचना",
+                secCg: "छत्तीसगढ़ राज्य चॉइस सेवाएं (Choice G2C)", secCentral: "केंद्र सरकार योजनाएं एवं डिजिटल बैंकिंग", secEdu: "शिक्षा, बोर्ड फॉर्म एवं छात्रवृत्ति (Education Hub)", secTravel: "यात्रा बुकिंग एवं नागरिक यूटिलिटी सेवाएं",
+                t1: "आय / जाति / निवास प्रमाण पत्र", d1: "छत्तीसगढ़ ई-डिस्ट्रिक्ट पोर्टल के अंतर्गत प्रमाणित कानूनी डिजिटल सर्टिफिकेट्स का निर्माण एवं सुधार ट्रैकिंग।", b1: "यहाँ से लिंक खोलें",
+                t2: "भुइँया भू-अभिलेख (Bhuiyan)", d2: "अपनी कृषि भूमि या आवासीय भूखंड का डिजिटल रिकॉर्ड, खसरा विवरण (B1), पी-II, और भू-नक्शा प्रिंट आउट।", b2: "यहाँ से लिंक खोलें",
+                t3: "नवीन राशन कार्ड / नवीनीकरण", d3: "खाद्य नागरिक आपूर्ति विभाग छत्तीसगढ़ के तहत नए राशन कार्ड आवेदन, समर्पण पत्र या नाम सुधार कार्य।", b3: "यहाँ से लिंक खोलें",
+                t4: "CSPDCL बिजली बिल भुगतान", d4: "छत्तीसगढ़ बिजली बिल ऑनलाइन देखना, सुरक्षित डिजिटल भुगतान एवं हाफ बिजली बिल योजना छूट रसीद प्रिंट।", b4: "यहाँ से लिंक खोलें",
+                t5: "माय आधार पोर्टल (UIDAI)", d5: "आधार कार्ड ऑनलाइन डाउनलोड, नया पीवीसी प्लास्टिक कार्ड ऑर्डर, बायोमेट्रिक लॉक एवं एड्रेस अपडेट।", b5: "यहाँ से लिंक खोलें",
+                t6: "नया पैन कार्ड ऑनलाइन (NSDL)", d6: "बायोमेट्रिक फिंगरप्रिंट अथवा ओटीपी ई-केवाईसी (e-KYC) के माध्यम से सिर्फ 2 घंटे में नया पैन कार्ड आवंटन।", b6: "यहाँ से लिंक खोलें",
+                t7: "आयुष्मान भारत हेल्थ कार्ड", d7: "सालाना ₹5 लाख मुफ्त इलाज हेतु नया आयुष्मान कार्ड निर्माण एवं खोए हुए कार्ड की दोबारा डाउनलोडिंग।", b7: "यहाँ से लिंक खोलें",
+                t8: "पीएम किसान सम्मान निधि", d8: "नवीन कृषक पंजीयन, सालाना ₹6000 हेतु ई-केवाईसी स्टेटस जांच एवं आगामी किश्तों के भुगतान की स्थिति।", b8: "यहाँ से लिंक खोलें",
+                t9: "छत्तीसगढ़ पोस्ट-मैट्रिक छात्रवृत्ति", d9: "स्कूल, कॉलेज, आईटीआई (ITI) एवं डिप्लोमा इंजीनियरिंग छात्रों हेतु ऑनलाइन स्कॉलरशिप पंजीयन एवं ट्रैकिंग।", b9: "यहाँ से लिंक खोलें",
+                t10: "छत्तीसगढ़ व्यापम (CG VYAPAM)", d10: "व्यापम द्वारा आयोजित विभिन्न सरकारी प्रतियोगी परीक्षाओं के ऑनलाइन प्रवेश फॉर्म एवं प्रोफाइल निर्माण।", b10: "यहाँ से लिंक खोलें",
+                t11: "नवीन सरकारी नौकरी व रिजल्ट", d11: "सभी नवीनतम केंद्रीय एवं राज्य स्तरीय सरकारी नौकरियों के ऑनलाइन आवेदन पत्र, एडमिट कार्ड और परीक्षा परिणाम।", b11: "यहाँ से लिंक खोलें",
+                t12: "माध्यमिक शिक्षा मंडल (CGBSE)", d12: "कक्षा 10वीं एवं 12वीं के मुख्य/पूरक परीक्षा बोर्ड फॉर्म, री-टोटलिंग एवं ओरिजिनल अंकसूची माइग्रेशन कार्य।", b12: "यहाँ से लिंक खोलें",
+                t13: "IRCTC रेलवे टिकट बुकिंग", d13: "देशभर की समस्त ट्रेनों के लिए ऑथराइज्ड कन्फर्म सामान्य टिकट, तत्काल टिकट बुकिंग एवं PNR स्टेटस जांच।", b13: "यहाँ से लिंक खोलें",
+                t14: "पासपोर्ट सेवा केंद्र (Govt)", d14: "नए भारतीय पासपोर्ट हेतु ऑनलाइन फ्रेश एप्लीकेशन, री-इश्यू दस्तावेज सबमिशन एवं अपॉइंटमेंट स्लॉट बुकिंग।", b14: "यहाँ से लिंक खोलें",
+                t15: "राष्ट्रीय मतदाता सेवा (NVSP)", d15: "नया वोटर आईडी कार्ड ऑनलाइन आवेदन, वोटर लिस्ट में नाम खोजना, तथा डिजिटल वोटर कार्ड डाउनलोड।", b15: "यहाँ से लिंक खोलें",
+                t16: "परिवहन सारथी (Driving License)", d16: "लर्निंग लाइसेंस ऑनलाइन test आवेदन, परमानेंट driving license स्लॉट बुकिंग एवं गाड़ी का RC स्टेटस।", b16: "यहाँ से लिंक खोलें"
+            },
+            en: {
+                headerTitle: "NEERAJ CHOICE & ONLINE CENTER", headerSub: "ALL GOVERNMENT, BANKING & CITIZEN DIGITAL SERVICES", langToggle: "हिंदी में बदलें",
+                menuHome: "Home Dashboard", menuCg: "CG Choice Services", menuCentral: "Govt Schemes & Banking", menuEdu: "Education & Scholarship", menuTravel: "Travel & Utilities",
+                heroWelcome: "Welcome to Our Services!", heroDesc: "Welcome to the National E-Services Gateway. This enterprise platform is engineered to deliver central and state government digital endpoints directly to citizens seamlessly.",
+                noticeTag: "Notice",
+                secCg: "Chhattisgarh State Choice Services (G2C Portal)", secCentral: "Central Government Schemes & Core Banking", secEdu: "Education, Board Forms & Student Scholarship Hub", secTravel: "Travel Ticket Booking & Citizen Utility Services",
+                t1: "Income / Caste / Residence Certificate", d1: "Issuance and tracking of legal digital certificates verified under the CG e-District gateway system.", b1: "Open Official Link",
+                t2: "Bhuiyan Land Records (B1 / P-II)", d2: "Instant extraction of computerized digital land records, Khasra B1, P-II, and official village maps.", b2: "Open Official Link",
+                t3: "New Ration Card / Renewal", d3: "Fresh ration card enlistment, modification of family members, or surrender certificates under food department.", b3: "Open Official Link",
+                t4: "CSPDCL Electricity Bill Payment", d4: "Online view of domestic electricity bills, secure merchant payment gateway, and subsidized incentive receipt print.", b4: "Open Official Link",
+                t5: "My Aadhaar Portal (UIDAI)", d5: "Download digital Aadhaar card, order secure PVC card, lock biometrics or update demographic address online.", b5: "Open Official Link",
+                t6: "New PAN Card Online (NSDL Gateway)", d6: "Instant issuance and allocation of digital PAN cards within 2 hours via secure OTP or Biometric fingerprint e-KYC.", b6: "Open Official Link",
+                t7: "Ayushman Bharat Health Card", d7: "Enlistment for yearly ₹5 Lakh free medical treatment cashless card creation and direct duplicate downloads.", b7: "Open Official Link",
+                t8: "PM Kisan Samman Nidhi Portal", d8: "New regular farmer registration, annual ₹6000 ledger maintenance, mandatory e-KYC validation, and installment status.", b8: "Open Official Link",
+                t9: "CG Post-Metric Scholarship Engine", d9: "Online scholarship registration, institution profiling, and status tracking for School, College, and ITI students.", b9: "Open Official Link",
+                t10: "Chhattisgarh Vyapam Recruitment", d10: "Profile registration and submission of online entrance/recruitment application forms organized by CG Vyapam.", b10: "Open Official Link",
+                t11: "Latest Govt Recruitment & Results", d11: "Direct tracking of central and state level job vacancies, official admit cards, and competitive examination results.", b11: "Open Official Link",
+                t12: "Board of Secondary Education (CGBSE)", d12: "Class 10th & 12th main/supplementary examination form submission, re-totalling registries, and duplicate marksheets.", b12: "Open Official Link",
+                t13: "IRCTC Authorized Train Booking", d13: "Booking of premium confirmed general tickets, instant tatkal ticketing, and live PNR railway tracking matrices.", b13: "Open Official Link",
+                t14: "Official Passport Seva Gateway", d14: "Submission of applications for fresh Indian Passports, re-issue documentation matrix, and appointment slot scheduling.", b14: "Open Official Link",
+                t15: "National Voter Services (NVSP)", d15: "Submission of new Voter ID form 6, epic modifications, constituency searches, and digital voter card downloads.", b15: "Open Official Link",
+                t16: "Parivahan Sarathi (Driving License)", d16: "Online application for Learning License computer tests, permanent driving license slots, and vehicle RC checks.", b16: "Open Official Link"
+            }
+        };
+
+        function enterPortal(lang) {
+            currentLang = lang;
+            updateDOMTexts();
+            document.getElementById('splashScreen').style.transform = 'translateY(-100%)';
+            setTimeout(() => {
+                document.getElementById('splashScreen').style.display = 'none';
+                let main = document.getElementById('mainPortal');
+                main.style.display = 'block';
+                setTimeout(() => main.style.opacity = '1', 50);
+            }, 600);
+        }
+
+        function switchLanguage() {
+            currentLang = (currentLang === 'hi') ? 'en' : 'hi';
+            updateDOMTexts();
+        }
+
+        function updateDOMTexts() {
+            const data = langData[currentLang];
+            document.getElementById('headerTitle').innerText = data.headerTitle;
+            document.getElementById('headerSub').innerHTML = `${data.headerSub} <span class="admin-status-tag" id="adminTag" style="display:${adminModeActive?'inline-block':'none'};">ADMIN ACTIVE 🟢</span>`;
+            document.getElementById('langToggleBtn').innerText = data.langToggle;
+            document.getElementById('menuHome').innerText = data.menuHome;
+            document.getElementById('menuCg').innerText = data.menuCg;
+            document.getElementById('menuCentral').innerText = data.menuCentral;
+            document.getElementById('menuEdu').innerText = data.menuEdu;
+            document.getElementById('menuTravel').innerText = data.menuTravel;
+            
+            if(!localStorage.getItem('megaW')) document.getElementById('heroWelcome').innerText = data.heroWelcome;
+            if(!localStorage.getItem('megaD')) document.getElementById('heroDesc').innerText = data.heroDesc;
+            
+            document.getElementById('noticeTag').innerText = data.noticeTag;
+            document.getElementById('secTitleCg').innerText = data.secCg;
+            document.getElementById('secTitleCentral').innerText = data.secCentral;
+            document.getElementById('secTitleEdu').innerText = data.secEdu;
+            document.getElementById('secTitleTravel').innerText = data.secTravel;
+
+            for(let i=1; i<=16; i++) {
+                document.getElementById('t'+i).innerText = data['t'+i];
+                document.getElementById('d'+i).innerText = data['d'+i];
+                document.getElementById('b'+i).innerText = data['b'+i];
+            }
+        }
+
+        // 📄 फुटर के ड्रॉपडाउन (An Introduction & Contact Us) को हैंडल करने वाला कम्बाइंड फंक्शन
+        function toggleFooterDropdown(blockId, arrowId) {
+            let infoBox = document.getElementById(blockId);
+            let arrow = document.getElementById(arrowId);
+            
+            if (infoBox.style.display === "none" || infoBox.style.display === "") {
+                infoBox.style.display = "block";
+                arrow.classList.add("arrow-rotate");
+            } else {
+                infoBox.style.display = "none";
+                arrow.classList.remove("arrow-rotate");
+            }
+        }
+
+        // 🔒 एडमिन एक्टिवेशन शॉर्टकट 'A'
+        window.addEventListener('keydown', function(e) {
+            if((e.key === 'A' || e.key === 'a') && !adminModeActive) {
+                let pass = prompt("Enter Secret Admin Password / गुप्त एडमिन पासवर्ड डालें:");
+                if(pass === "NCC123") {
+                    adminModeActive = true;
+                    document.getElementById('adminPanelBox').style.display = 'block';
+                    document.getElementById('adminTag').style.display = 'inline-block';
+                    alert("🔓 Admin Live Mode Active!");
+                }
+            }
+        });
+
+        function saveAdminData() {
+            let hw = document.getElementById('editWelcomeText').value.trim();
+            let hd = document.getElementById('editDescText').value.trim();
+            let hn = document.getElementById('editNoticeText').value.trim();
+
+            if(hw) { document.getElementById('heroWelcome').innerText = hw; localStorage.setItem('megaW', hw); }
+            if(hd) { document.getElementById('heroDesc').innerText = hd; localStorage.setItem('megaD', hd); }
+            if(hn) { document.getElementById('liveNotice').innerText = hn; localStorage.setItem('megaN', hn); }
+
+            alert("✨ Portal updated successfully!");
+            document.getElementById('adminPanelBox').style.display = 'none';
+        }
+
+        window.onload = function() {
+            if(localStorage.getItem('megaW')) document.getElementById('heroWelcome').innerText = localStorage.getItem('megaW');
+            if(localStorage.getItem('megaD')) document.getElementById('heroDesc').innerText = localStorage.getItem('megaD');
+            if(localStorage.getItem('megaN')) document.getElementById('liveNotice').innerText = localStorage.getItem('megaN');
+        }
+    </script>
+    <script>
+    // 🧠 विजिटर काउंटर लॉजिक
+    function updateCounter() {
+        // LocalStorage से पुरानी वैल्यू उठाएं, अगर नहीं है तो 0 से शुरू करें
+        let visitors = localStorage.getItem('site_visitors') ? parseInt(localStorage.getItem('site_visitors')) : 0;
+        let pageVisits = localStorage.getItem('site_page_visits') ? parseInt(localStorage.getItem('site_page_visits')) : 0;
+
+        // 1. Total Page Visits बढ़ाएं (हर बार पेज रीफ्रेश होने पर बढ़ेगा)
+        pageVisits++;
+        localStorage.setItem('site_page_visits', pageVisits);
+
+        // 2. Unique Visitors बढ़ाएं (सिर्फ तब बढ़ेगा जब यूजर पहली बार आएगा, टैब बंद करके दोबारा आने पर नहीं)
+        if (!sessionStorage.getItem('is_new_session')) {
+            visitors++;
+            localStorage.setItem('site_visitors', visitors);
+            sessionStorage.setItem('is_new_session', 'true'); // इस सेशन के लिए लॉक कर दें
+        }
+
+        // स्क्रीन पर नंबरों को लाइव दिखाएं
+        document.getElementById('unique-visitors').innerText = localStorage.getItem('site_visitors');
+        document.getElementById('total-page-visits').innerText = localStorage.getItem('site_page_visits');
+    }
+
+    // पेज लोड होते ही काउंटर चालू करें
+    window.onload = function() {
+        updateCounter();
+    };
+</script>
+</body>
+</html>
